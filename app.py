@@ -12,6 +12,7 @@ def carregar_dados():
         if arquivo.endswith(".csv"):
             df = pd.read_csv(os.path.join(path, arquivo), delimiter=";")
             df = df.drop(index=df.index[-1], errors='ignore')
+            df['Número']  = df['Número'].astype('int64')
             colunas_validas = ['Candidato', 'Número', 'Local de Votação', 'Votos']
             if 'Bairro' in df.columns:
                 colunas_validas.append('Bairro')
@@ -51,18 +52,18 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
     agrupado = None
 
     if modo == "👤 Por Candidato":
-        agrupado = df_filtrado.groupby(['Local de Votação'])['Votos'].sum().reset_index()
+        agrupado = df_filtrado.groupby(['Local de Votação','Bairro'])['Votos'].sum().reset_index()
         st.subheader(f"📍 Locais onde **{candidato_escolhido}** recebeu votos")
     else:
         agrupado = df_filtrado.groupby(['Candidato', 'Número'])['Votos'].sum().reset_index()
         agrupado = agrupado.sort_values(by='Votos', ascending=False)
         st.subheader("🏆 Vereador mais votado:")
         mais_votado = agrupado.iloc[0]
-        st.markdown(f"**{mais_votado['Candidato']}** ({mais_votado['Número']}) com **{mais_votado['Votos']}** votos.")
+        st.markdown(f"**{mais_votado['Candidato']}** ({(mais_votado['Número'])}) com **{mais_votado['Votos']}** votos.")
 
     # Tabela
-    st.subheader("📋 Tabela de Votos")
-    st.dataframe(agrupado)
+    st.subheader("📋 Tabela de Votos") 
+    st.dataframe(agrupado.reset_index(drop= True).style.hide(axis= 'index'))
 
     # Gráfico
     st.subheader("📈 Gráfico")
