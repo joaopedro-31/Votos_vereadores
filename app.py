@@ -12,7 +12,7 @@ def carregar_dados():
         if arquivo.endswith(".csv"):
             df = pd.read_csv(os.path.join(path, arquivo), delimiter=";")
             df = df.drop(index=df.index[-1], errors='ignore')
-            df['Número']  = df['Número'].astype('int64')
+            df['Número']  = df['Número'].astype(int)
             colunas_validas = ['Candidato', 'Número', 'Local de Votação', 'Votos']
             if 'Bairro' in df.columns:
                 colunas_validas.append('Bairro')
@@ -59,7 +59,7 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
         agrupado = agrupado.sort_values(by='Votos', ascending=False)
         st.subheader("🏆 Vereador mais votado:")
         mais_votado = agrupado.iloc[0]
-        st.markdown(f"**{mais_votado['Candidato']}** ({(mais_votado['Número'])}) com **{mais_votado['Votos']}** votos.")
+        st.markdown(f"**{mais_votado['Candidato']}** ({mais_votado['Número']}) com **{mais_votado['Votos']}** votos.")
 
     # Tabela
     st.subheader("📋 Tabela de Votos") 
