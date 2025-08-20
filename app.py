@@ -3,11 +3,11 @@ import pandas as pd
 import os
 
 # Caminho
-path = r"C:\Users\jpkab\OneDrive\Desktop\LÉO COUTO\py\csvs"
 
 @st.cache_data
 def carregar_dados():
     all_dfs = []
+    path = "csvs"
     for arquivo in os.listdir(path):
         if arquivo.endswith(".csv"):
             df = pd.read_csv(os.path.join(path, arquivo), delimiter=";")
