@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
+import ast
 
 # Caminho
 
@@ -8,12 +9,20 @@ import os
 def carregar_dados():
     all_dfs = []
     path = "csvs"
+    with open('dicionarios_partidos.txt',"r",encoding="utf-8") as f:
+        conteudo = f.read()
+        meu_dict = ast.literal_eval(conteudo)
     for arquivo in os.listdir(path):
         if arquivo.endswith(".csv"):
             df = pd.read_csv(os.path.join(path, arquivo), delimiter=";")
             df = df.drop(index=df.index[-1], errors='ignore')
-            df['Número']  = df['Número'].astype(int)
-            colunas_validas = ['Candidato', 'Número', 'Local de Votação', 'Votos']
+            df['Número'] = df['Número'].astype(int)
+            df['Número'] = df['Número'].astype(str)
+            
+            if "Partido" not in df.columns:
+                df["Partido"] = df["Número"].apply(lambda x: meu_dict.get(x[:2], ["Desconhecido"])[0])
+                
+            colunas_validas = ['Candidato', 'Número', 'Partido', 'Local de Votação', 'Votos']
             if 'Bairro' in df.columns:
                 colunas_validas.append('Bairro')
             df = df[colunas_validas]
@@ -55,7 +64,7 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
         agrupado = df_filtrado.groupby(['Local de Votação','Bairro'])['Votos'].sum().reset_index()
         st.subheader(f"📍 Locais onde **{candidato_escolhido}** recebeu votos")
     else:
-        agrupado = df_filtrado.groupby(['Candidato', 'Número'])['Votos'].sum().reset_index()
+        agrupado = df_filtrado.groupby(['Candidato', 'Número', 'Partido'])['Votos'].sum().reset_index()
         agrupado = agrupado.sort_values(by='Votos', ascending=False)
         st.subheader("🏆 Vereador mais votado:")
         mais_votado = agrupado.iloc[0]
