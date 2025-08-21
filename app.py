@@ -1,7 +1,23 @@
 import streamlit as st
+from st_aggrid import AgGrid, GridOptionsBuilder
 import pandas as pd
 import os
 import ast
+
+# def login():
+#     st.title("🔒 Login")
+#     usuario = st.text_input("Usuário")
+#     senha = st.text_input("Senha", type="password")
+#     if st.button("Entrar"):
+#         # Usuário e senha fixos (exemplo)
+#         if usuario == "admin" and senha == "1234":
+#             st.session_state["autenticado"] = True
+#         else:
+#             st.error("Usuário ou senha incorretos.")
+
+# if "autenticado" not in st.session_state or not st.session_state["autenticado"]:
+#     login()
+#     st.stop()
 
 # Caminho
 
@@ -22,7 +38,7 @@ def carregar_dados():
             if "Partido" not in df.columns:
                 df["Partido"] = df["Número"].apply(lambda x: meu_dict.get(x[:2], ["Desconhecido"])[0])
                 
-            colunas_validas = ['Candidato', 'Número', 'Partido', 'Local de Votação', 'Votos']
+            colunas_validas = ['Candidato', 'Partido', 'Número', 'Local de Votação', 'Votos']
             if 'Bairro' in df.columns:
                 colunas_validas.append('Bairro')
             df = df[colunas_validas]
@@ -32,7 +48,7 @@ def carregar_dados():
 df = carregar_dados()
 
 # Interface
-st.title("📊 Análise de Votação para Vereadores")
+st.title("Votação Vereadores 2024 - Fortaleza")
 
 modo = st.radio("Escolha o tipo de análise:", ["🔍 Por Local de Votação", "🏘️ Por Bairro", "👤 Por Candidato"])
 
@@ -62,24 +78,37 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
 
     if modo == "👤 Por Candidato":
         agrupado = df_filtrado.groupby(['Local de Votação','Bairro'])['Votos'].sum().reset_index()
+        total = agrupado['Votos'].sum()
         st.subheader(f"📍 Locais onde **{candidato_escolhido}** recebeu votos")
+        st.markdown(f" 📈 O vereador **{candidato_escolhido}** recebeu **{total}** votos totais")
     else:
         agrupado = df_filtrado.groupby(['Candidato', 'Número', 'Partido'])['Votos'].sum().reset_index()
         agrupado = agrupado.sort_values(by='Votos', ascending=False)
         st.subheader("🏆 Vereador mais votado:")
         mais_votado = agrupado.iloc[0]
         st.markdown(f"**{mais_votado['Candidato']}** ({mais_votado['Número']}) com **{mais_votado['Votos']}** votos.")
+        agrupado = agrupado[['Candidato', 'Partido', 'Votos']]
 
     # Tabela
     st.subheader("📋 Tabela de Votos") 
-    st.dataframe(agrupado.reset_index(drop= True).style.hide(axis= 'index'))
+    agrupado['Votos'] = agrupado['Votos'].astype(str)
+    botao_excel = 0
+    botao_pdf = 0
+    # st.dataframe(agrupado.reset_index(drop= True),hide_index= True)
+    
+    gb = GridOptionsBuilder.from_dataframe(agrupado)
+    gb.configure_default_column(editable=False, groupable=True)
+    grid_options = gb.build()
 
-    # Gráfico
-    st.subheader("📈 Gráfico")
-    if modo == "👤 Por Candidato":
-        st.bar_chart(agrupado.set_index('Local de Votação')['Votos'])
-    else:
-        st.bar_chart(agrupado.set_index('Candidato')['Votos'])
+    AgGrid(agrupado, gridOptions=grid_options, fit_columns_on_grid_load=True)
 
+    #df_final_reset = df_final.reset_index(drop=True)
+
+    # Centralizar só a coluna "Votos"
+    # st.markdown(
+    #     df_final_reset.to_html(index=False, justify="center"),
+    #     unsafe_allow_html=True
+    # )
+    
 elif 'df_filtrado' in locals():
     st.warning("Nenhum dado encontrado.")
