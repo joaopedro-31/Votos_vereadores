@@ -111,7 +111,7 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
         gb.configure_column('Bairro', editable=False, resizable=False, maxWidth= 200, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')    
     grid_options = gb.build()
 
-    AgGrid(agrupado, gridOptions=grid_options,height= 500,fit_columns_on_grid_load=True)
+    AgGrid(agrupado, gridOptions=grid_options,height= 615,fit_columns_on_grid_load=True)
 
     #df_final_reset = df_final.reset_index(drop=True)
 
