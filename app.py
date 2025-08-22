@@ -78,6 +78,7 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
 
     if modo == "👤 Por Candidato":
         agrupado = df_filtrado.groupby(['Local de Votação','Bairro'])['Votos'].sum().reset_index()
+        agrupado = agrupado.sort_values(by='Votos', ascending=False)
         total = agrupado['Votos'].sum()
         st.subheader(f"📍 Locais onde **{candidato_escolhido}** recebeu votos")
         st.markdown(f" 📈 O vereador **{candidato_escolhido}** recebeu **{total}** votos totais")
