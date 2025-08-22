@@ -68,7 +68,7 @@ elif modo == "🏘️ Por Bairro":
             df_filtrado = df[df['Bairro'] == bairro_escolhido]
 elif modo == "👤 Por Candidato":
     candidatos = sorted(df['Candidato'].dropna().unique())
-    candidato_escolhido = st.selectbox("Selecione o Candidato:", candidatos)
+    candidato_escolhido = st.selectbox("Selecione o Candidato:", candidatos, index=384)
     if candidato_escolhido:
         df_filtrado = df[df['Candidato'] == candidato_escolhido]
 
@@ -81,6 +81,7 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
         total = agrupado['Votos'].sum()
         st.subheader(f"📍 Locais onde **{candidato_escolhido}** recebeu votos")
         st.markdown(f" 📈 O vereador **{candidato_escolhido}** recebeu **{total}** votos totais")
+  
     else:
         agrupado = df_filtrado.groupby(['Candidato', 'Número', 'Partido'])['Votos'].sum().reset_index()
         agrupado = agrupado.sort_values(by='Votos', ascending=False)
@@ -91,16 +92,16 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
 
     # Tabela
     st.subheader("📋 Tabela de Votos") 
-    agrupado['Votos'] = agrupado['Votos'].astype(str)
+    agrupado['Votos'] = agrupado['Votos'].astype(int)
     botao_excel = 0
     botao_pdf = 0
-    # st.dataframe(agrupado.reset_index(drop= True),hide_index= True)
     
     gb = GridOptionsBuilder.from_dataframe(agrupado)
-    gb.configure_default_column(editable=False, groupable=True)
+    gb.configure_default_column(editable=False, resizable=False, filterable= False)
+    gb.configure_column('Votos', editable=False, resizable=False, maxWidth= 100, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')
     grid_options = gb.build()
 
-    AgGrid(agrupado, gridOptions=grid_options, fit_columns_on_grid_load=True)
+    AgGrid(agrupado, gridOptions=grid_options,height= 500,fit_columns_on_grid_load=True)
 
     #df_final_reset = df_final.reset_index(drop=True)
 
