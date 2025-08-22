@@ -58,17 +58,24 @@ if modo == "🔍 Por Local de Votação":
 
     if local_escolhido:
         df_filtrado = df[df['Local de Votação'] == local_escolhido]
+        bairro = df_filtrado['Bairro'].unique()[0]
+        st.markdown(f" Bairro: **{bairro}**")
+        
 elif modo == "🏘️ Por Bairro":
     if "Bairro" not in df.columns:
         st.error("⚠️ A coluna 'Bairro' não existe nos seus arquivos.")
+        
     else:
         bairros = sorted(df['Bairro'].dropna().unique())
         bairro_escolhido = st.selectbox("Selecione o Bairro:", bairros)
+        
         if bairro_escolhido:
             df_filtrado = df[df['Bairro'] == bairro_escolhido]
+            
 elif modo == "👤 Por Candidato":
     candidatos = sorted(df['Candidato'].dropna().unique())
     candidato_escolhido = st.selectbox("Selecione o Candidato:", candidatos, index=384)
+    
     if candidato_escolhido:
         df_filtrado = df[df['Candidato'] == candidato_escolhido]
 
@@ -100,6 +107,8 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
     gb = GridOptionsBuilder.from_dataframe(agrupado)
     gb.configure_default_column(editable=False, resizable=False, filterable= False)
     gb.configure_column('Votos', editable=False, resizable=False, maxWidth= 100, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')
+    if modo == "👤 Por Candidato":
+        gb.configure_column('Bairro', editable=False, resizable=False, maxWidth= 200, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')    
     grid_options = gb.build()
 
     AgGrid(agrupado, gridOptions=grid_options,height= 500,fit_columns_on_grid_load=True)
