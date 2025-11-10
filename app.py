@@ -28,21 +28,36 @@ def carregar_dados():
     with open('dicionarios_partidos.txt',"r",encoding="utf-8") as f:
         conteudo = f.read()
         meu_dict = ast.literal_eval(conteudo)
+        
+    with open('lista_regionais.txt', "r", encoding="utf-8") as f:
+        conteudo_regional = f.read()
+        regionais_dict = ast.literal_eval(conteudo_regional)
+      
+    bairro_para_regional = {
+        bairro.upper().strip(): regional
+        for regional, bairros in regionais_dict.items()
+        for bairro in bairros
+    }   
+  
     for arquivo in os.listdir(path):
         if arquivo.endswith(".csv"):
             df = pd.read_csv(os.path.join(path, arquivo), delimiter=";")
             df = df.drop(index=df.index[-1], errors='ignore')
             df['Número'] = df['Número'].astype(int)
             df['Número'] = df['Número'].astype(str)
-            
+
             if "Partido" not in df.columns:
-                df["Partido"] = df["Número"].apply(lambda x: meu_dict.get(x[:2], ["Desconhecido"])[0])
-                
-            colunas_validas = ['Candidato', 'Partido', 'Número', 'Local de Votação', 'Votos']
+                    df["Partido"] = df["Número"].apply(lambda x: meu_dict.get(x[:2], ["Desconhecido"])[0])
+                            
+                    colunas_validas = ['Candidato', 'Partido', 'Número', 'Local de Votação', 'Votos']
             if 'Bairro' in df.columns:
-                colunas_validas.append('Bairro')
-            df = df[colunas_validas]
-            all_dfs.append(df)
+                    df['Bairro'] = df['Bairro'].str.split('-').str[0]
+                    df['Regional'] = df['Bairro'].map(bairro_para_regional)
+                    colunas_validas.extend(['Bairro', 'Regional'])
+            df_u = df[colunas_validas]
+            
+            all_dfs.append(df_u)
+            
     return pd.concat(all_dfs, ignore_index=True)
 
 df = carregar_dados()
@@ -50,7 +65,7 @@ df = carregar_dados()
 # Interface
 st.title("Votação Vereadores 2024 - Fortaleza")
 
-modo = st.radio("Escolha o tipo de análise:", ["🔍 Por Local de Votação", "🏘️ Por Bairro", "👤 Por Candidato"])
+modo = st.radio("Escolha o tipo de análise:", ["🔍 Por Local de Votação", "🗺️ Por Regional","🏘️ Por Bairro", "👤 Por Candidato"])
 
 if modo == "🔍 Por Local de Votação":
     locais = sorted(df['Local de Votação'].dropna().unique())
@@ -59,8 +74,20 @@ if modo == "🔍 Por Local de Votação":
     if local_escolhido:
         df_filtrado = df[df['Local de Votação'] == local_escolhido]
         bairro = df_filtrado['Bairro'].unique()[0]
-        st.markdown(f" Bairro: **{bairro}**")
+        regional = df_filtrado['Regional'].unique()[0]
+        st.markdown(f" Bairro: **{bairro}**  -  Regional: **{regional}** ")
         
+elif modo == "🗺️ Por Regional":
+    if "Bairro" not in df.columns:
+        st.error("⚠️ A coluna 'Bairro' não existe nos seus arquivos.")
+        
+    else:
+        regionais = sorted(df['Regional'].dropna().unique())
+        regional_escolhida = st.selectbox("Selecione a Regional:", regionais)
+        
+        if regional_escolhida:
+            df_filtrado = df[df['Regional'] == regional_escolhida]
+               
 elif modo == "🏘️ Por Bairro":
     if "Bairro" not in df.columns:
         st.error("⚠️ A coluna 'Bairro' não existe nos seus arquivos.")
@@ -71,20 +98,23 @@ elif modo == "🏘️ Por Bairro":
         
         if bairro_escolhido:
             df_filtrado = df[df['Bairro'] == bairro_escolhido]
+            regional = df_filtrado['Regional'].unique()[0]
+            st.markdown(f" O bairro selecionado pertence a regional: {regional} ")
             
 elif modo == "👤 Por Candidato":
     candidatos = sorted(df['Candidato'].dropna().unique())
-    candidato_escolhido = st.selectbox("Selecione o Candidato:", candidatos, index=384)
+    #index=384
+    candidato_escolhido = st.selectbox("Selecione o Candidato:", candidatos)
     
     if candidato_escolhido:
         df_filtrado = df[df['Candidato'] == candidato_escolhido]
-
+        
 # Exibição de resultados
 if 'df_filtrado' in locals() and not df_filtrado.empty:
     agrupado = None
 
     if modo == "👤 Por Candidato":
-        agrupado = df_filtrado.groupby(['Local de Votação','Bairro'])['Votos'].sum().reset_index()
+        agrupado = df_filtrado.groupby(['Local de Votação','Bairro','Regional'])['Votos'].sum().reset_index() 
         agrupado = agrupado.sort_values(by='Votos', ascending=False)
         total = agrupado['Votos'].sum()
         st.subheader(f"📍 Locais onde **{candidato_escolhido}** recebeu votos")
@@ -108,18 +138,11 @@ if 'df_filtrado' in locals() and not df_filtrado.empty:
     gb.configure_default_column(editable=False, resizable=False, filterable= False)
     gb.configure_column('Votos', editable=False, resizable=False, maxWidth= 100, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')
     if modo == "👤 Por Candidato":
-        gb.configure_column('Bairro', editable=False, resizable=False, maxWidth= 200, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')    
+        gb.configure_column('Bairro', editable=False, resizable=False, maxWidth= 200, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header') 
+        gb.configure_column('Regional', editable=False, resizable=False, maxWidth= 200, filter= False, cellStyle={'textAlign': 'left'}, headerClass='ag-left-aligned-header')   
     grid_options = gb.build()
 
     AgGrid(agrupado, gridOptions=grid_options,height= 615,fit_columns_on_grid_load=True)
-
-    #df_final_reset = df_final.reset_index(drop=True)
-
-    # Centralizar só a coluna "Votos"
-    # st.markdown(
-    #     df_final_reset.to_html(index=False, justify="center"),
-    #     unsafe_allow_html=True
-    # )
     
 elif 'df_filtrado' in locals():
     st.warning("Nenhum dado encontrado.")

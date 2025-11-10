@@ -1,0 +1,12 @@
+{1: ['Vila Velha', 'Jardim Guanabara', 'Barra do Ceará', 'Cristo Redentor', 'Pirambu', 'Carlito Pamplona', 'Jacarecanga', 'Jardim Iracema', 'Floresta', 'Álvaro Weyne']
+,2: ['Meireles', 'Aldeota', 'Varjota', 'Papicu', 'De Lourdes', 'Cais do Porto', 'Mucuripe', 'Vicente Pinzon', 'Joaquim Távora', 'Dionisio Torres', 'Tauape'] 
+,3: ['Quintino Cunha', 'Olavo Oliveira', 'Antônio Bezerra', 'Padre Andrade', 'Presidente Kennedy', 'Ellery', 'Monte Castelo', 'São Gerardo', 'Farias Brito', 'Parque Araxá', 'Parquelândia', 'Amadeu Furtado', 'Rodolfo Teófilo'] 
+,4: ['José Bonifácio', 'Benfica', 'Fátima', 'Damas', 'Jardim América', 'Bom Futuro', 'Montese', 'Itaoca', 'Parangaba', 'Vila Peri', 'Parreão', 'Vila União', 'Aeroporto'] 
+,5: ['Granja Lisboa', 'Granja Portugal', 'Bom Jardim', 'Siqueira', 'Bonsucesso'] 
+,6: ['Alto da Balança', 'Aerolândia', 'Jardim das Oliveiras', 'Cidade dos Funcionários', 'Parque Manibura', 'Parque Iracema', 'Cambeba', 'Messejana', 'José de Alencar', 'Curió', 'Guajeru', 'Lagoa Redonda', 'Coaçu', 'São Bento', 'Paupina'] 
+,7: ['Praia do Futuro I', 'Praia do Futuro II', 'Cocó', 'Cidade 2000', 'Manuel Dias Branco', 'Salinas', 'Guararapes', 'ENGENHEIRO Luciano Cavalcante', 'Edson Queiroz', 'Sapiranga', 'Sabiaguaba'] 
+,8: ['Serrinha', 'Itaperi', 'Dendê', 'Dias Macedo', 'Boa Vista', 'Parque Dois Irmãos', 'Passaré', 'Planalto Ayrton Senna', 'Prefeito José Walter'] 
+,9: ['Cajazeiras', 'Barroso', 'Conjunto Palmeiras', 'Jangurussu', 'Parque Santa Maria', 'Ancuri', 'Pedras'] 
+,10: ['Parque São José', 'Novo Mondubim', 'Canindezinho', 'Conjunto Esperança', 'Parque Santa Rosa', 'Parque Presidente Vargas', 'Aracapé', 'Maraponga', 'Jardim Cearense', 'Mondubim', 'Manoel Sátiro'] 
+,11: ['Pici', 'Bela Vista', 'Panamericano', 'Couto Fernandes', 'Democrito Rocha', 'Autran Nunes', 'Dom Lustosa', 'Henrique Jorge', 'Jóquei Clube', 'João XXIII', 'Genibaú', 'Conjunto Ceará I', 'Conjunto Ceará II'] 
+,12: ['Centro', 'Moura Brasil', 'Praia de Iracema']}
