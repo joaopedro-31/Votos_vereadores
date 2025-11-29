@@ -33,9 +33,7 @@ def carregar_dados():
 
     # dicionário: BAIRRO(UCASE)->REGIONAL
     bairro_para_regional = {
-        (bairro or "").upper().strip(): regional
-        for regional, bairros in regionais_dict.items()
-        for bairro in bairros
+        (bairro or "").upper().strip(): regional for regional, bairros in regionais_dict.items() for bairro in bairros
     }
 
     for arquivo in os.listdir(path):
